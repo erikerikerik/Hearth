@@ -1,0 +1,10 @@
+.venv/
+.venv-ai/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+runtime/
+devdata/
+
+installer/build/

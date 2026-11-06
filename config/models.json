@@ -1,0 +1,58 @@
+{
+  "_note": "Hearth talks to ONE local OpenAI-compatible endpoint on loopback. Any backend works (mlx_lm.server on a Mac, llama.cpp or Ollama on a PC). Sizes are measured safetensors totals from Hugging Face, not runtime memory.",
+  "endpoint": "http://127.0.0.1:8081/v1",
+  "profiles": {
+    "fast": {
+      "min_ram_gb": 16,
+      "mlx": "mlx-community/gemma-4-e4b-it-4bit",
+      "weights_gb": 5.1,
+      "why": "Fastest sensible choice; leaves most memory free"
+    },
+    "balanced": {
+      "min_ram_gb": 24,
+      "mlx": "mlx-community/gemma-4-12B-it-OptiQ-4bit",
+      "weights_gb": 9.0,
+      "why": "Better replies, still comfortable beside speech models"
+    },
+    "large": {
+      "min_ram_gb": 32,
+      "mlx": "mlx-community/gemma-4-26B-A4B-it-qat-4bit",
+      "weights_gb": 15.6,
+      "why": "Mixture-of-experts, 4B active; needs a raised GPU memory limit on 24 GB"
+    }
+  },
+  "stt": {
+    "mlx": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+    "approx_gb": 1.6
+  },
+  "tts": {
+    "mlx": "mlx-community/Kokoro-82M-bf16",
+    "approx_gb": 0.2
+  },
+  "packages": {
+    "mlx-lm": "0.32.2",
+    "mlx-whisper": "0.4.3",
+    "mlx-audio": "0.6.3"
+  },
+  "default_profile": "balanced",
+  "license_note": "Gemma models are under the Gemma license, not Apache-2.0. Read it before any use beyond this household.",
+  "voices": {
+    "default": "willow",
+    "fallback": "moss",
+    "engine": "kokoro",
+    "options": {
+      "willow": {
+        "label": "Willow",
+        "note": "warm, soft",
+        "kokoro_voice": "af_heart,af_nicole",
+        "lang_code": "a"
+      },
+      "moss": {
+        "label": "Moss",
+        "note": "low, steady",
+        "kokoro_voice": "bm_george",
+        "lang_code": "b"
+      }
+    }
+  }
+}

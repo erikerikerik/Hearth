@@ -1,0 +1,28 @@
+{
+  "version": "1.3.0-rc1",
+  "build_id": "1.3.0-rc1+p005",
+  "patch_level": 5,
+  "profile": "synthetic-acceptance",
+  "personal_use_ready": false,
+  "ui_milestones": ["U0", "U1", "U2", "U3", "U4", "U5"],
+  "components": {
+    "orb_contract": "1.0",
+    "orb_renderer": "filament-v1@1",
+    "realtime_protocol": 1,
+    "audio_bands": 1,
+    "browser_acceptance": "desktop-1280-and-mobile-360",
+    "persistence": "sqlite",
+    "authentication": "argon2id-session-csrf",
+    "melt": "scheduled-logical-deletion"
+  },
+  "blocking_gates": [
+    "local-models",
+    "target-device-voice-validation",
+    "encrypted-backups",
+    "reviewed-safety-policy",
+    "target-device-accessibility-performance",
+    "real-machine-deletion-proof",
+    "owner-visual-signoff",
+    "signed-notarized-installer"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "hearth-u1-orb-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:orb": "node --test tests/orb_contract.test.mjs",
+    "test:shell": "node --test tests/shell_contract.test.mjs",
+    "test:browser": "node tests/browser_acceptance.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

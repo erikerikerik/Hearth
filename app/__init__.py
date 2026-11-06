@@ -1,0 +1,2 @@
+"""Hearth local application package."""
+

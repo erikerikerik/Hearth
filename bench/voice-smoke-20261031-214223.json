@@ -1,0 +1,66 @@
+{
+ "summary": {
+  "tts_model": "mlx-community/Kokoro-82M-bf16",
+  "stt_model": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+  "load_tts_s": 0.1,
+  "load_stt_s": 8.7,
+  "mean_first_audio_s": 0.26,
+  "mean_tts_realtime_factor": 0.08,
+  "mean_stt_s": 0.86,
+  "mean_word_error_rate": 0.0,
+  "peak_memory_gb_this_process": 3.04,
+  "note": "Round-trip accuracy uses clean synthetic speech, so it is optimistic. Real microphones and rooms will be worse."
+ },
+ "rows": [
+  {
+   "text": "Good morning. It's nice to have you here.",
+   "heard": "Good morning, it's nice to have you here.",
+   "audio_s": 2.8,
+   "tts_first_audio_s": 0.29,
+   "tts_total_s": 0.3,
+   "tts_realtime_factor": 0.11,
+   "stt_s": 0.84,
+   "word_error_rate": 0.0
+  },
+  {
+   "text": "That took a lot of courage, speaking up like that.",
+   "heard": "That took a lot of courage, speaking up like that.",
+   "audio_s": 3.17,
+   "tts_first_audio_s": 0.22,
+   "tts_total_s": 0.23,
+   "tts_realtime_factor": 0.07,
+   "stt_s": 0.86,
+   "word_error_rate": 0.0
+  },
+  {
+   "text": "I don't have any memories of Dana yet. Could you tell me about her?",
+   "heard": "I don't have any memories of Dana yet. Could you tell me about her?",
+   "audio_s": 4.15,
+   "tts_first_audio_s": 0.29,
+   "tts_total_s": 0.3,
+   "tts_realtime_factor": 0.07,
+   "stt_s": 0.88,
+   "word_error_rate": 0.0
+  },
+  {
+   "text": "Take all the time you need. I'm listening.",
+   "heard": "Take all the time you need. I'm listening.",
+   "audio_s": 2.7,
+   "tts_first_audio_s": 0.19,
+   "tts_total_s": 0.2,
+   "tts_realtime_factor": 0.07,
+   "stt_s": 0.85,
+   "word_error_rate": 0.0
+  },
+  {
+   "text": "It sounds like Thursday's meetings are weighing on you before they even start.",
+   "heard": "It sounds like Thursday's meetings are weighing on you before they even start.",
+   "audio_s": 4.75,
+   "tts_first_audio_s": 0.31,
+   "tts_total_s": 0.33,
+   "tts_realtime_factor": 0.07,
+   "stt_s": 0.87,
+   "word_error_rate": 0.0
+  }
+ ]
+}

@@ -1,0 +1,45 @@
+{
+  "_note": "Fill url, sha256 (64 hex), size_bytes and license for each model you have chosen. Entries with a placeholder sha256 are refused by the downloader. min_ram_gb is the smallest machine that should get this tier; the largest fitting tier is chosen.",
+  "models": [
+    {
+      "id": "llm-fast",
+      "role": "llm",
+      "filename": "REPLACE-fast-model.gguf",
+      "url": "https://REPLACE.example/fast-model.gguf",
+      "sha256": "PLACEHOLDER",
+      "size_bytes": 0,
+      "min_ram_gb": 16,
+      "license": "REPLACE"
+    },
+    {
+      "id": "llm-12b",
+      "role": "llm",
+      "filename": "REPLACE-12b-model.gguf",
+      "url": "https://REPLACE.example/12b-model.gguf",
+      "sha256": "PLACEHOLDER",
+      "size_bytes": 0,
+      "min_ram_gb": 24,
+      "license": "REPLACE"
+    },
+    {
+      "id": "stt-default",
+      "role": "stt",
+      "filename": "REPLACE-stt.bin",
+      "url": "https://REPLACE.example/stt.bin",
+      "sha256": "PLACEHOLDER",
+      "size_bytes": 0,
+      "min_ram_gb": 8,
+      "license": "REPLACE"
+    },
+    {
+      "id": "tts-default",
+      "role": "tts",
+      "filename": "REPLACE-tts.bin",
+      "url": "https://REPLACE.example/tts.bin",
+      "sha256": "PLACEHOLDER",
+      "size_bytes": 0,
+      "min_ram_gb": 8,
+      "license": "REPLACE"
+    }
+  ]
+}

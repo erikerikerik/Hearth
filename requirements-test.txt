@@ -1,0 +1,2 @@
+# Test-only dependency. Brave itself is not downloaded by Playwright.
+playwright==1.57.0

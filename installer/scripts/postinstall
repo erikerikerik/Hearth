@@ -1,0 +1,16 @@
+#!/bin/bash
+# Runs as root after the package lays down /Applications/Hearth.app. Everything here is best-effort.
+U="$(/usr/bin/stat -f%Su /dev/console 2>/dev/null)"
+[ -z "$U" ] || [ "$U" = "root" ] && exit 0
+UID_NUM="$(/usr/bin/id -u "$U")"
+
+# Put Hearth in the Dock (once).
+if ! /usr/bin/sudo -u "$U" -H /usr/bin/defaults read com.apple.dock persistent-apps 2>/dev/null | /usr/bin/grep -q "/Applications/Hearth.app"; then
+  /usr/bin/sudo -u "$U" -H /usr/bin/defaults write com.apple.dock persistent-apps -array-add \
+    '<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>/Applications/Hearth.app</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>' || true
+  /usr/bin/killall Dock 2>/dev/null || true
+fi
+
+# On an upgrade, restart the service so it runs the new code. User data is never touched here.
+/bin/launchctl kickstart -k "gui/$UID_NUM/com.hearth.local" >/dev/null 2>&1 || true
+exit 0

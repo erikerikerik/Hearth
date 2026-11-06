@@ -1,0 +1,5 @@
+{
+  "module": "/orb/filament-v1.js",
+  "export": "filamentV1Factory",
+  "renderer": "filament-v1@1"
+}

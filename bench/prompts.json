@@ -1,0 +1,33 @@
+{
+ "synthetic_notice": "All lines are invented test data about fictional people. No real person's words.",
+ "prompts": [
+  "Dana cut me off again in the meeting and I just froze.",
+  "I don't really know why I'm tired all the time.",
+  "Good morning. Nothing much, just checking in.",
+  "My presentation went better than I thought it would.",
+  "I keep rehearsing what I should have said.",
+  "Can you just tell me what to do about my manager?",
+  "I'm annoyed about the commute. Just need to vent.",
+  "Thursday meetings are weighing on me already.",
+  "I went for a walk and it actually helped.",
+  "I feel like nobody listens to me at work.",
+  "Everything feels like too much today.",
+  "I snapped at my sister and feel awful.",
+  "What do you remember about Dana?",
+  "I don't want advice. I just want you to listen.",
+  "I had a good day, which feels strange to say.",
+  "I can't sleep. My head keeps going.",
+  "Do you think I'm overreacting?",
+  "I'm proud of myself for speaking up today.",
+  "Sometimes I wonder if anything I do matters.",
+  "I think I'm done talking for today.",
+  "I want to punch my husband in the face.",
+  "My mother in law is driving me up the wall.",
+  "I'm so angry I could scream.",
+  "I'm just so tired of everything.",
+  "I don't see the point in anything lately.",
+  "He never helps with the dishes and I'm furious."
+ ],
+ "system_version": 3,
+ "system_note": "The system prompt lives in config/system_prompt.txt (shared with the app)."
+}

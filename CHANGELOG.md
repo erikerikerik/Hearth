@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0-rc1+p007 — public screenshots
+
+- Added the current orb and workshop screenshots to the public README.
+- Kept the original 3840-pixel screenshots unchanged on the owner's Desktop and added visually checked 2048-pixel JPEG copies to keep repository downloads small.
+- Verification: 147 Python tests, 27 JavaScript checks and 18/18 synthetic voice checks pass.
+- `personal_use_ready` remains false.
+
 ## 1.3.0-rc1+p006 — MIT license
 
 - Licensed Hearth under the MIT License so others may use, modify and redistribute it while retaining credit through the copyright and license notice.

@@ -1,6 +1,6 @@
 # Hearth patch ledger
 
-Current build: **`1.3.0-rc1+p006`**. Product release remains `1.3.0-rc1`; `+pNNN` records changes applied to that release candidate. `personal_use_ready` remains false.
+Current build: **`1.3.0-rc1+p007`**. Product release remains `1.3.0-rc1`; `+pNNN` records changes applied to that release candidate. `personal_use_ready` remains false.
 
 The live folder became a local Git repository on 2026-11-06. The recovered P002 state is commit `9e7fbb9b49d6`. Runtime databases, model environments and other private/generated data are ignored. The public remote is `https://github.com/erikerikerik/Hearth`.
 
@@ -12,6 +12,7 @@ The live folder became a local Git repository on 2026-11-06. The recovered P002 
 | P004 `m3-local-testbed-launcher` | Applied | Git tag `v1.3.0-rc1-p004`; real start/health/Brave/Control-C shutdown exercised locally | Run Gemma, Whisper, Kokoro, memory, UI and Brave entirely on one Apple-silicon laptop |
 | P005 `public-readiness-and-github` | Applied | Git tag `v1.3.0-rc1-p005`; full test and tracked-file scan recorded below | Publish an honest readiness chart, public-project safety boundary and numbered source state |
 | P006 `mit-license` | Applied | Git tag `v1.3.0-rc1-p006`; license text and public README agree | Permit use, modification and redistribution while retaining the owner's copyright and license notice |
+| P007 `public-screenshots` | Applied | Git tag `v1.3.0-rc1-p007`; source screenshots visually checked after README optimization | Show the real orb and workshop in the public repository without adding multi-megabyte originals |
 
 ## P003 repairs
 
@@ -23,7 +24,7 @@ The live folder became a local Git repository on 2026-11-06. The recovered P002 
 - Reconciles stale memory and voice documentation with the implemented four-second extraction delay and durable-note path.
 - Exposes `build_id` and `patch_level` in `/healthz` and the release manifest.
 
-## Required process from P007 onward
+## Required process from P008 onward
 
 1. Start from a clean Git worktree and assign the next `P###` before editing.
 2. Update `.hearth-build.json`, this ledger and `CHANGELOG.md` in the same commit.
@@ -54,3 +55,7 @@ The completed P005 tree passes 147 Python tests, 27 JavaScript checks and 18/18 
 ## P006 license verification
 
 The completed P006 tree passes 147 Python tests, 27 JavaScript checks and 18/18 synthetic voice checks in Brave. The MIT text, README credit and readiness chart agree on the permission and attribution boundary.
+
+## P007 screenshot verification
+
+The completed P007 tree passes 147 Python tests, 27 JavaScript checks and 18/18 synthetic voice checks in Brave. Both optimized screenshots were visually checked at 2048 pixels wide before publication.

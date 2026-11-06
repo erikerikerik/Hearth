@@ -34,7 +34,7 @@ from .llm import stream_chat
 
 
 VERSION = "1.3.0-rc1"
-PATCH_LEVEL = 6
+PATCH_LEVEL = 7
 BUILD_ID = f"{VERSION}+p{PATCH_LEVEL:03d}"
 _AUTO_VOICE_ENGINE = object()
 UI_CONTRACT_MAJOR = 1

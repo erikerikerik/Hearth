@@ -1,6 +1,6 @@
 # Hearth V1 readiness chart
 
-- Build: **`1.3.0-rc1+p006`**
+- Build: **`1.3.0-rc1+p007`**
 - Decision: **public source preview; not personal-use ready**
 - Machine boundary: **one Apple-silicon Mac, loopback only**
 
@@ -35,13 +35,13 @@ This chart separates implemented behavior from evidence still needed. A passing 
 | Public repository hygiene | ✅ | Runtime data, environments, models and credentials are ignored; public docs state safety limits | Pre-publish tracked-file and secret-pattern scan required for every release. No real user data belongs in tests or issues. |
 | Reuse license | ✅ | MIT License with credit retained through the required copyright and license notice | The license covers Hearth's code, not third-party model weights or their separate licenses. |
 
-## Evidence snapshot for P006
+## Evidence snapshot for P007
 
 | Check | Result |
 | --- | --- |
-| Python suite | 147 tests passed on P006 |
-| JavaScript suites | 27 checks passed on P006 |
-| Brave synthetic voice acceptance | 18/18 checks passed on P006 |
+| Python suite | 147 tests passed on P007 |
+| JavaScript suites | 27 checks passed on P007 |
+| Brave synthetic voice acceptance | 18/18 checks passed on P007 |
 | Real launcher orchestration | Gemma and Hearth started on loopback, health passed, Brave opened, and owned processes stopped cleanly |
 | Real microphone permission | Build Mac prompted after reload and accepted the selected input device; conversational quality is not yet a recorded test |
 

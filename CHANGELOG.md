@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0-rc1+p006 — MIT license
+
+- Licensed Hearth under the MIT License so others may use, modify and redistribute it while retaining credit through the copyright and license notice.
+- Added explicit author credit to the public README.
+- Third-party model weights remain governed by their own upstream licenses.
+- Verification: 147 Python tests, 27 JavaScript checks and 18/18 synthetic voice checks pass.
+- `personal_use_ready` remains false.
+
 ## 1.3.0-rc1+p005 — public readiness and GitHub
 
 - Replaced the stale deployment list with a current evidence chart covering the one-Mac voice path, memory, deletion, safety, installer, accessibility, storage and licensing gates.

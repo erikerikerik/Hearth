@@ -1,9 +1,9 @@
 {
   "product_version": "1.3.0-rc1",
-  "build_id": "1.3.0-rc1+p005",
-  "patch_level": 5,
+  "build_id": "1.3.0-rc1+p006",
+  "patch_level": 6,
   "personal_use_ready": false,
-  "source_of_truth": "git tag v1.3.0-rc1-p005",
+  "source_of_truth": "git tag v1.3.0-rc1-p006",
   "patches": [
     {
       "id": "P001",
@@ -26,6 +26,10 @@
     {
       "id": "P005",
       "name": "public-readiness-and-github"
+    },
+    {
+      "id": "P006",
+      "name": "mit-license"
     }
   ]
 }

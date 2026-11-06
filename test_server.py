@@ -51,8 +51,8 @@ class HearthServerTests(unittest.TestCase):
     def test_health_is_explicitly_non_production(self):
         data = self.client.get("/healthz").json()
         self.assertEqual(data["status"], "ok")
-        self.assertEqual(data["build_id"], "1.3.0-rc1+p005")
-        self.assertEqual(data["patch_level"], 5)
+        self.assertEqual(data["build_id"], "1.3.0-rc1+p006")
+        self.assertEqual(data["patch_level"], 6)
         self.assertFalse(data["personal_use_ready"])
         self.assertEqual(data["local_ai"], "disabled")
         self.assertEqual(data["persistence"], "sqlite-synthetic")

@@ -4,7 +4,7 @@ Hearth is an experimental, voice-first companion that runs on one Apple-silicon 
 
 Hearth is **not therapy, a clinician, a medical device or an emergency service**. It never contacts emergency services, family or anyone else. The safety policy has not had clinical review. This repository remains a release candidate and `/healthz` deliberately reports `personal_use_ready: false`; do not use it for sensitive personal conversations yet.
 
-Exact build history is recorded in `PATCHES.md` and `.hearth-build.json`. The current build is `1.3.0-rc1+p005`. See `RELEASE_READINESS.md` for the evidence chart and unfinished work.
+Exact build history is recorded in `PATCHES.md` and `.hearth-build.json`. The current build is `1.3.0-rc1+p006`. See `RELEASE_READINESS.md` for the evidence chart and unfinished work.
 
 ## Run
 
@@ -59,7 +59,11 @@ The UI uses system font stacks only. No font files are bundled or fetched.
 
 - Tests use synthetic data. Never paste real conversations, credentials, model weights or the contents of `runtime/` into an issue or commit.
 - Model files are not part of this repository. Their upstream licenses apply separately.
-- The source is public for inspection, but no reuse license has been selected yet. Until one is added, normal copyright restrictions apply.
+- Hearth is released under the MIT License. You may use, modify and redistribute it as long as the copyright and license notice remain with the software.
 - Security problems should be reported without personal data. See `SECURITY.md`.
+
+## License and credit
+
+Copyright © 2026 [erikerikerik](https://github.com/erikerikerik). Released under the [MIT License](LICENSE).
 
 Create a production-style hash with `.venv/bin/python scripts/create_password_hash.py`. Production setup must use `HEARTH_PASSWORD_HASH`, secure cookies and the reviewed local HTTPS boundary.

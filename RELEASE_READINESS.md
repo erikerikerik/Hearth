@@ -1,6 +1,6 @@
 # Hearth V1 readiness chart
 
-- Build: **`1.3.0-rc1+p005`**
+- Build: **`1.3.0-rc1+p006`**
 - Decision: **public source preview; not personal-use ready**
 - Machine boundary: **one Apple-silicon Mac, loopback only**
 
@@ -33,15 +33,15 @@ This chart separates implemented behavior from evidence still needed. A passing 
 | Networked/LAN mode | ➖ | Loopback-only is the supported V1 direction | LAN scripts are retained as experiments, but V1 does not need a Mac-mini-to-laptop server path. Do not expose Hearth to a LAN or the internet. |
 | Telemetry / cloud fallback | ✅ | None in the application runtime | Offline tests and source inspection. Keep model downloads isolated from runtime and consent-gated. |
 | Public repository hygiene | ✅ | Runtime data, environments, models and credentials are ignored; public docs state safety limits | Pre-publish tracked-file and secret-pattern scan required for every release. No real user data belongs in tests or issues. |
-| Reuse license | ⬜ | Repository is visible publicly | The owner must select a license before others have permission to copy, modify or redistribute the code. Model licenses remain separate. |
+| Reuse license | ✅ | MIT License with credit retained through the required copyright and license notice | The license covers Hearth's code, not third-party model weights or their separate licenses. |
 
-## Evidence snapshot for P005
+## Evidence snapshot for P006
 
 | Check | Result |
 | --- | --- |
-| Python suite | 147 tests passed on P005 |
-| JavaScript suites | 27 checks passed on P005 |
-| Brave synthetic voice acceptance | 18/18 checks passed on P005 |
+| Python suite | 147 tests passed on P006 |
+| JavaScript suites | 27 checks passed on P006 |
+| Brave synthetic voice acceptance | 18/18 checks passed on P006 |
 | Real launcher orchestration | Gemma and Hearth started on loopback, health passed, Brave opened, and owned processes stopped cleanly |
 | Real microphone permission | Build Mac prompted after reload and accepted the selected input device; conversational quality is not yet a recorded test |
 
@@ -52,7 +52,7 @@ This chart separates implemented behavior from evidence still needed. A passing 
 3. **Target M3 validation:** voice, earbuds, permissions, VAD, echo, latency, accessibility and sustained-session tests.
 4. **Installer closure:** pinned revisions/checksums, bundled environment, supervised services, clean-machine DMG test, signing and notarization.
 5. **Storage decision:** encrypted backups with purge propagation, or a documented no-backup V1.
-6. **Release decision:** owner visual sign-off, choose a source license, attach all evidence and only then consider changing `personal_use_ready`.
+6. **Release decision:** owner visual sign-off, attach all evidence and only then consider changing `personal_use_ready`.
 
 ## Release rule
 

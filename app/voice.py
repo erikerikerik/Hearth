@@ -139,6 +139,29 @@ class VoiceEngine(Protocol):
     def synthesize(self, text: str, voice_id: Optional[str]) -> bytes: ...  # int16 PCM at sample_rate
 
 
+def use_bundled_espeak() -> bool:
+    """Point phonemizer at the eSpeak NG library shipped inside the app (espeakng-loader).
+
+    Kokoro's English front-end (misaki) uses eSpeak only for words missing from its dictionary,
+    such as names. Without a library it silently skips those words. An explicit environment
+    setting wins. Returns True when the bundled copy is in use.
+    """
+    import importlib
+    import os
+    if os.environ.get("PHONEMIZER_ESPEAK_LIBRARY"):
+        return False
+    try:
+        loader = importlib.import_module("espeakng_loader")
+        library, data = loader.get_library_path(), loader.get_data_path()
+    except Exception:
+        return False
+    if not os.path.isfile(library):
+        return False
+    os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = library
+    os.environ.setdefault("PHONEMIZER_ESPEAK_DATA_PATH", data)
+    return True
+
+
 class MlxVoiceEngine:
     """Local speech models through MLX (Apple silicon). Loaded on first use, then kept warm.
 
@@ -146,17 +169,24 @@ class MlxVoiceEngine:
     server routes them through a single-worker executor.
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: Optional[dict] = None, data_dir=None):
         import json
         from pathlib import Path
 
+        from .local_models import installed_models
+
         root = Path(__file__).resolve().parent.parent
-        self.config = config or json.loads((root / "config" / "models.json").read_text())
+        self.config = dict(config or json.loads((root / "config" / "models.json").read_text()))
+        # Installed app: load the verified local snapshots, never a hub name.
+        for role, local in installed_models(data_dir).items():
+            if role in ("stt", "tts"):
+                self.config[role] = dict(self.config.get(role, {}), mlx=local["path"])
         self.sample_rate = 24000
         self._tts = None
         self._stt = None
 
     def load(self) -> None:
+        use_bundled_espeak()
         if self._tts is None:
             from mlx_audio.tts.utils import load as load_tts
             self._tts = load_tts(self.config["tts"]["mlx"])

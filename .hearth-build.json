@@ -1,9 +1,9 @@
 {
   "product_version": "1.3.0-rc1",
-  "build_id": "1.3.0-rc1+p007",
-  "patch_level": 7,
+  "build_id": "1.3.0-rc1+p008",
+  "patch_level": 8,
   "personal_use_ready": false,
-  "source_of_truth": "git tag v1.3.0-rc1-p007",
+  "source_of_truth": "git tag v1.3.0-rc1-p008",
   "patches": [
     {
       "id": "P001",
@@ -34,6 +34,10 @@
     {
       "id": "P007",
       "name": "public-screenshots"
+    },
+    {
+      "id": "P008",
+      "name": "installer-voice-loop"
     }
   ]
 }

@@ -1,0 +1,23 @@
+# Everything the installed Hearth.app runs, resolved by installer/lock.sh into requirements-app.lock
+# (exact versions + sha256 for every wheel, macOS arm64, Python 3.12). build.sh installs only the lock.
+
+# Companion server (same pins as requirements.txt)
+-r ../requirements.txt
+
+# Local language model server and speech (versions match config/models.json "packages")
+mlx-lm==0.32.2
+mlx-audio==0.6.3
+
+# Kokoro's English text front-end. misaki[en] is NOT used: its extras pull in
+# spacy-curated-transformers and PyTorch, which Hearth does not need (trf=False).
+misaki==0.7.4
+num2words
+spacy>=3.8,<3.9
+phonemizer
+# eSpeak NG library + data, so words outside misaki's dictionary (names, rare words) are still spoken
+espeakng-loader
+soundfile
+scipy
+
+# spaCy English model, bundled so nothing is downloaded at run time
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl#sha256=1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85

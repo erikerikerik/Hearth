@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!-- Hearth's local language model. Installed by Hearth.app only after tools/model_manager.py has
+     verified the snapshot below. Loopback only; launchd restarts it if it exits. -->
+<dict>
+  <key>Label</key><string>@LABEL@</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>@PYTHON@</string>
+    <string>-m</string>
+    <string>mlx_lm.server</string>
+    <string>--model</string>
+    <string>@MODEL@</string>
+    <string>--host</string>
+    <string>127.0.0.1</string>
+    <string>--port</string>
+    <string>@LLM_PORT@</string>
+  </array>
+  <key>WorkingDirectory</key><string>@RES@</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- The model is a local, verified folder. These make any accidental hub lookup fail instead of downloading. -->
+    <key>HF_HUB_OFFLINE</key><string>1</string>
+    <key>TRANSFORMERS_OFFLINE</key><string>1</string>
+    <key>HF_HUB_DISABLE_TELEMETRY</key><string>1</string>
+    <key>HF_HOME</key><string>@DATA@/hf-home</string>
+    <key>PYTHONDONTWRITEBYTECODE</key><string>1</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <!-- Back off between restarts so a model that cannot load does not spin. -->
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>ProcessType</key><string>Interactive</string>
+  <key>StandardOutPath</key><string>@LOGS@/llm.log</string>
+  <key>StandardErrorPath</key><string>@LOGS@/llm.log</string>
+</dict>
+</plist>

@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 from .llm import stream_chat
+from .local_models import installed_models
 from .safety import decide, filter_output
 
 log = logging.getLogger("uvicorn.error")
@@ -45,12 +46,21 @@ class LlmSettings:
     system_prompt: str
 
 
-def load_llm_settings(root: Path = ROOT) -> LlmSettings:
+def load_llm_settings(root: Path = ROOT, data_dir: Optional[Path] = None) -> LlmSettings:
+    """The model name sent to the loopback server.
+
+    Installed app: the verified local folder from the data directory, which is exactly the path
+    the supervised mlx_lm.server was started with (so the server never resolves a hub name).
+    Developer tree: the profile's hub name, served from the developer's own offline cache.
+    """
     cfg = json.loads((root / "config" / "models.json").read_text())
+    prompt = (root / "config" / "system_prompt.txt").read_text().strip()
+    local = installed_models(data_dir).get("llm")
+    if local:
+        return LlmSettings(cfg["endpoint"], local["path"], prompt)
     profile_file = root / ".hearth-profile"
     profile = profile_file.read_text().strip() if profile_file.exists() else cfg["default_profile"]
-    return LlmSettings(cfg["endpoint"], cfg["profiles"][profile]["mlx"],
-                       (root / "config" / "system_prompt.txt").read_text().strip())
+    return LlmSettings(cfg["endpoint"], cfg["profiles"][profile]["mlx"], prompt)
 
 
 def clean_model_text(raw: str) -> str:

@@ -39,4 +39,4 @@ Test-bed state persists under `runtime/testbed/`, which Git ignores. Logs are un
 
 ## DMG path
 
-The launcher is deliberately split into a small double-click wrapper and `scripts/launch_testbed.sh`. A later DMG can call the same core launcher from `Hearth.app`, replacing the temporary password prompt with the installed app's first-run password and replacing Terminal process ownership with launchd. The runtime remains fully local on the laptop.
+The test-bed launcher stays the developer path (it uses `.venv-ai` and your own Hugging Face cache). The DMG took a different route in P008: `Hearth.app` has its own bundled runtime, downloads pinned models into its data directory on first launch, and runs the companion and `mlx_lm.server` as two launchd services instead of Terminal-owned processes. See `installer/INSTALL.md`. The runtime remains fully local on the laptop.

@@ -34,7 +34,7 @@ from .llm import stream_chat
 
 
 VERSION = "1.3.0-rc1"
-PATCH_LEVEL = 7
+PATCH_LEVEL = 8
 BUILD_ID = f"{VERSION}+p{PATCH_LEVEL:03d}"
 _AUTO_VOICE_ENGINE = object()
 UI_CONTRACT_MAJOR = 1
@@ -275,7 +275,7 @@ def create_app(
         # local auto-detection while making tests and tools deterministic.
         voice_engine_ref = [voice_engine] if voice_engine is not None else []
     elif os.environ.get("HEARTH_VOICE_ENABLED", "1") == "1" and mlx_available():
-        voice_engine_ref = [MlxVoiceEngine()]
+        voice_engine_ref = [MlxVoiceEngine(data_dir=data_root)]
     else:
         voice_engine_ref = []
 
@@ -315,7 +315,7 @@ def create_app(
     )
     app.state.runtime = runtime
     use_llm = (os.environ.get("HEARTH_LLM_ENABLED", "0") == "1") if llm_enabled is None else llm_enabled
-    llm_settings = load_llm_settings() if use_llm else None
+    llm_settings = load_llm_settings(data_dir=data_root) if use_llm else None
     llm_call = llm_stream or stream_chat
 
     def parse_host(raw: str) -> str:

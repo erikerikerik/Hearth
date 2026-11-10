@@ -1,6 +1,6 @@
 # Hearth patch ledger
 
-Current build: **`1.3.0-rc1+p008`**. Product release remains `1.3.0-rc1`; `+pNNN` records changes applied to that release candidate. `personal_use_ready` remains false.
+Current build: **`1.3.0-rc1+p009`**. Product release remains `1.3.0-rc1`; `+pNNN` records changes applied to that release candidate. `personal_use_ready` remains false.
 
 The live folder became a local Git repository on 2026-11-06. The recovered P002 state is commit `9e7fbb9b49d6`. Runtime databases, model environments and other private/generated data are ignored. The public remote is `https://github.com/erikerikerik/Hearth`.
 
@@ -14,6 +14,7 @@ The live folder became a local Git repository on 2026-11-06. The recovered P002 
 | P006 `mit-license` | Applied | Git tag `v1.3.0-rc1-p006`; license text and public README agree | Permit use, modification and redistribution while retaining the owner's copyright and license notice |
 | P007 `public-screenshots` | Applied | Git tag `v1.3.0-rc1-p007`; source screenshots visually checked after README optimization | Show the real orb and workshop in the public repository without adding multi-megabyte originals |
 | P008 `installer-voice-loop` | In review (branch `p008-installer-voice-loop`) | Linux test results below; tag `v1.3.0-rc1-p008` only after the Mac build and smoke test pass | Make `Hearth.app` carry the whole local voice loop: pinned runtime, consented verified model download, supervised language model |
+| P009 `conversation-tone` | In review (branch `p009-conversation-tone`, on top of P008) | Linux test results below | First real test: she liked the listening and asked for a little more back. Make the default slightly more engaging, connect the tone vials, and let her ask for a listener or a chat for the day |
 
 ## P003 repairs
 
@@ -87,4 +88,26 @@ Verification so far (Linux build container, synthetic data only):
 - **JavaScript:** 27 checks passed.
 - **Real download:** the pinned Kokoro snapshot (56 files, 0.36 GB) was downloaded from Hugging Face and verified, and `verify` re-hashed it cleanly.
 - **Not run:** the 18-check Brave voice acceptance, `build.sh`, signing, notarization, the LaunchAgents, Metal, and the smoke test. These need the Mac mini and the M3 laptop; P008 is tagged only after they pass.
+
+## P009 conversation tone
+
+What changed (details in `docs/CONVERSATION_STYLE.md`):
+
+- The workshop tone vials now reach the model through `app/conversation_style.py`, as instructions under "How to talk right now" plus a per-turn sentence cap (2, 3 or 4). Before this patch they were saved but ignored.
+- At the default tone the companion answers in two or three sentences, reflects the feeling behind what she says, and asks a specific follow-up about every other reply. That is slightly more engaging than P008.
+- She can say "just listen today", "let's chat" or "back to normal". The mode lasts until the end of the local day, across reloads, and is held in process memory only.
+- `config/system_prompt.txt` no longer fixes the length or question rate. Every safety and memory rule in it is unchanged.
+
+Deviations, documented:
+
+- The default reply length grows from "one or two short sentences" to "two or three", because the first real test asked for more engagement.
+- The tone vials were cosmetic in the UI handoff build; they now steer the model.
+- `pace` is still not wired to speech.
+
+Verification (Linux, synthetic data only):
+
+- **Python:** 186 tests: 184 passed, 1 skipped; the only failure is the macOS-only launcher check, unchanged.
+- **New tests:** 18 in `test_conversation_style.py`, covering the mapping, the modes, phrase detection including false positives, the day reset, crisis turns never changing the mode or reaching the model, and the sentence cap end to end through the voice session.
+- **JavaScript:** 27 checks passed.
+- **Not measured:** reply quality and voice-path latency on the target M3 with the real model.
 

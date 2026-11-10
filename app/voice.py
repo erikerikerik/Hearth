@@ -25,7 +25,8 @@ from typing import Callable, Iterator, List, Optional, Protocol, Tuple
 
 from dataclasses import replace as dc_replace
 
-from .companion import LlmSettings, stream_reply
+from .companion import LlmSettings, stream_reply, with_style
+from .conversation_style import DayMode, detect_mode_request, style_for
 from .remember import FORGOT_REPLY, NOTHING_TO_FORGET_REPLY, MemoryKeeper, is_forget_request
 from .safety import decide
 from .llm import stream_chat
@@ -239,6 +240,8 @@ class VoiceSession:
     shelf_unlocked: Callable[[], bool] = lambda: False
     session_tag: str = "s0"
     memory_delay: float = 4.0            # quiet seconds before notes are written, so replies are never slowed
+    tone: Callable[[], Optional[dict]] = lambda: None     # the workshop tone vials, read each turn
+    day_mode: Optional[DayMode] = None   # "just listen today" / "let's chat", shared across connections
 
     def __post_init__(self):
         self.segmenter = Segmenter(self.vad)
@@ -403,10 +406,21 @@ class VoiceSession:
                     await self.event("memory.removed", id=str(removed))
                 sentences = iter([("memory", FORGOT_REPLY if removed is not None else NOTHING_TO_FORGET_REPLY)])
             else:
+                if self.day_mode is not None and decide(text).risk_level == "ordinary":
+                    asked = detect_mode_request(text)
+                    if asked is not None:
+                        self.day_mode.set(None if asked == "default" else asked)
+                try:
+                    tone = self.tone()
+                except Exception:
+                    tone = None
+                style = style_for(tone, self.day_mode.get() if self.day_mode is not None else None)
                 settings = self.llm_settings
-                if settings is not None and self.memory is not None:
-                    settings = dc_replace(settings, system_prompt=settings.system_prompt + self.memory.prompt_block())
-                sentences = stream_reply(text, list(self.history), settings, self.llm_call)
+                if settings is not None:
+                    settings = with_style(settings, style)
+                    if self.memory is not None:
+                        settings = dc_replace(settings, system_prompt=settings.system_prompt + self.memory.prompt_block())
+                sentences = stream_reply(text, list(self.history), settings, self.llm_call, style.max_sentences)
             delivered: List[str] = []
             self._playback_done = asyncio.Event()
             audio_seconds = 0.0

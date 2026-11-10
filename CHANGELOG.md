@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0-rc1+p009 — a little more back, and she chooses the day
+
+- The workshop tone vials now steer the companion; at the default tone it says a bit more (two or three sentences, a gentle follow-up about every other reply).
+- Say "just listen today", "let's chat" or "back to normal" to change the style until the end of the day; held in memory only.
+- Safety handling and memory are unchanged; crisis words never reach the model and never change the mode.
+- 184 of 186 Python tests pass on Linux (the failure is the macOS-only launcher check, one is skipped) and 27 JavaScript checks pass. Not yet measured on the M3.
+
 ## 1.3.0-rc1+p008 — installer carries the voice loop
 
 - `Hearth.app` now bundles the local voice and language stack (MLX, mlx-lm, mlx-audio, misaki, spaCy English model, eSpeak NG) from a hash-locked, PyTorch-free package list and a sha256-pinned Python.

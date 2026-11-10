@@ -4,7 +4,7 @@ Hearth is an experimental, voice-first companion that runs on one Apple-silicon 
 
 Hearth is **not therapy, a clinician, a medical device or an emergency service**. It never contacts emergency services, family or anyone else. The safety policy has not had clinical review. This repository remains a release candidate and `/healthz` deliberately reports `personal_use_ready: false`; do not use it for sensitive personal conversations yet.
 
-Exact build history is recorded in `PATCHES.md` and `.hearth-build.json`. The current build is `1.3.0-rc1+p008`. See `RELEASE_READINESS.md` for the evidence chart and unfinished work.
+Exact build history is recorded in `PATCHES.md` and `.hearth-build.json`. The current build is `1.3.0-rc1+p009`. See `RELEASE_READINESS.md` for the evidence chart and unfinished work.
 
 ## Screenshots
 

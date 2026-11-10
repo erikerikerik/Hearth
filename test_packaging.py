@@ -171,5 +171,20 @@ class BundledRuntimeTests(unittest.TestCase):
         self.assertIn("MACOSX_DEPLOYMENT_TARGET=14.0", (INSTALLER / "lock.sh").read_text())
 
 
+
+class TestbedSetupTests(unittest.TestCase):
+    """A fresh clone must get Hearth's server packages, and the launcher must say so plainly if they are missing."""
+
+    def test_install_models_installs_the_server_requirements(self):
+        text = (ROOT / "scripts" / "install_models.sh").read_text()
+        self.assertIn(".venv-ai/bin/python -m pip install --quiet -r requirements.txt", text)
+
+    def test_launcher_checks_server_packages_before_starting(self):
+        text = (ROOT / "scripts" / "launch_testbed.sh").read_text()
+        check = text.index('import fastapi, uvicorn, argon2')
+        self.assertLess(check, text.index("Starting the local Gemma server"))
+        self.assertIn("pip install -r requirements.txt", text[check:check + 300])
+
+
 if __name__ == "__main__":
     unittest.main()

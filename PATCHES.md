@@ -97,6 +97,7 @@ What changed (details in `docs/CONVERSATION_STYLE.md`):
 - At the default tone the companion answers in two or three sentences, reflects the feeling behind what she says, and asks a specific follow-up about every other reply. That is slightly more engaging than P008.
 - She can say "just listen today", "let's chat" or "back to normal". The mode lasts until the end of the local day, across reloads, and is held in process memory only.
 - `config/system_prompt.txt` no longer fixes the length or question rate. Every safety and memory rule in it is unchanged.
+- Test bed setup fix found on the first fresh clone: `scripts/install_models.sh` now also installs `requirements.txt` into `.venv-ai`, and `scripts/launch_testbed.sh` checks for FastAPI, uvicorn and argon2 before starting anything. Before this, a fresh clone failed with `No module named 'uvicorn'`.
 
 Deviations, documented:
 

@@ -31,6 +31,8 @@ if [ ! -d .venv-ai ]; then
 fi
 .venv-ai/bin/python -m ensurepip --upgrade >/dev/null 2>&1 || true
 .venv-ai/bin/python -m pip install --quiet --upgrade pip
+# Hearth's own server packages (FastAPI, uvicorn, ...) — the test bed runs the app from this same environment
+.venv-ai/bin/python -m pip install --quiet -r requirements.txt
 read -r LM WH AU < <(python3 -c "import json;p=json.load(open('config/models.json'))['packages'];print(p['mlx-lm'],p['mlx-whisper'],p['mlx-audio'])")
 .venv-ai/bin/pip install --quiet "mlx-lm==$LM" "mlx-whisper==$WH" "mlx-audio==$AU" huggingface_hub
 MODEL=$(python3 -c "import json,sys;print(json.load(open('config/models.json'))['profiles']['$PROFILE']['mlx'])")

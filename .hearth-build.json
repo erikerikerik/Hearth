@@ -1,9 +1,9 @@
 {
   "product_version": "1.3.0-rc1",
-  "build_id": "1.3.0-rc1+p008",
-  "patch_level": 8,
+  "build_id": "1.3.0-rc1+p009",
+  "patch_level": 9,
   "personal_use_ready": false,
-  "source_of_truth": "git tag v1.3.0-rc1-p008",
+  "source_of_truth": "git tag v1.3.0-rc1-p009",
   "patches": [
     {
       "id": "P001",
@@ -38,6 +38,10 @@
     {
       "id": "P008",
       "name": "installer-voice-loop"
+    },
+    {
+      "id": "P009",
+      "name": "conversation-tone"
     }
   ]
 }

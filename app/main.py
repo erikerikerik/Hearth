@@ -29,12 +29,13 @@ from .safety import POLICY_VERSION, decide, filter_output
 from .remember import MemoryKeeper
 from .voice import MlxVoiceEngine, VoiceSession, mlx_available
 from .voices import available_voices
-from .companion import generate_reply, load_llm_settings
+from .companion import generate_reply, load_llm_settings, with_style
+from .conversation_style import DayMode, style_for
 from .llm import stream_chat
 
 
 VERSION = "1.3.0-rc1"
-PATCH_LEVEL = 8
+PATCH_LEVEL = 9
 BUILD_ID = f"{VERSION}+p{PATCH_LEVEL:03d}"
 _AUTO_VOICE_ENGINE = object()
 UI_CONTRACT_MAJOR = 1
@@ -316,6 +317,14 @@ def create_app(
     app.state.runtime = runtime
     use_llm = (os.environ.get("HEARTH_LLM_ENABLED", "0") == "1") if llm_enabled is None else llm_enabled
     llm_settings = load_llm_settings(data_dir=data_root) if use_llm else None
+    # "Just listen today" / "let's chat": process memory only, never stored; resets each day.
+    day_mode = DayMode()
+
+    def current_tone():
+        try:
+            return runtime.store.workshop(include_memory_text=False)["settings"].get("tone")
+        except Exception:
+            return None
     llm_call = llm_stream or stream_chat
 
     def parse_host(raw: str) -> str:
@@ -619,8 +628,10 @@ def create_app(
         session: Session = Depends(require_csrf),
         _: None = Depends(require_dev_tools),
     ):
+        style = style_for(current_tone(), day_mode.get())
         reply = generate_reply(
-            body.text, runtime.store.recent_turns(body.fixture_id), llm_settings, llm_call,
+            body.text, runtime.store.recent_turns(body.fixture_id),
+            with_style(llm_settings, style) if llm_settings is not None else None, llm_call, style.max_sentences,
         )
         delivered = reply.text
         turn_id = runtime.store.record_turn(body.fixture_id, body.text, reply.risk_level, delivered)
@@ -727,6 +738,7 @@ def create_app(
             memory=MemoryKeeper(runtime.store, llm_settings, llm_call) if llm_settings is not None else None,
             shelf_unlocked=lambda: session.shelf_unlocked_until > time.time(),
             session_tag="c-" + secrets.token_hex(4),
+            tone=current_tone, day_mode=day_mode,
         )
         try:
             while True:

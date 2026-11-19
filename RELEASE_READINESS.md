@@ -1,6 +1,6 @@
 # Hearth V1 readiness chart
 
-- Build: **`1.3.0-rc1+p008`**
+- Build: **`1.3.0-rc1+p009`**
 - Decision: **public source preview; not personal-use ready**
 - Machine boundary: **one Apple-silicon Mac, loopback only**
 
@@ -35,13 +35,14 @@ This chart separates implemented behavior from evidence still needed. A passing 
 | Public repository hygiene | ✅ | Runtime data, environments, models and credentials are ignored; public docs state safety limits | Pre-publish tracked-file and secret-pattern scan required for every release. No real user data belongs in tests or issues. |
 | Reuse license | ✅ | MIT License with credit retained through the required copyright and license notice | The license covers Hearth's code, not third-party model weights or their separate licenses. |
 
-## Evidence snapshot for P008
+## Evidence snapshot for P009
 
 | Check | Result |
 | --- | --- |
-| Python suite | 168 tests on Linux: 167 passed, 1 skipped; the one failure is the macOS-only launcher `--check`, which cannot run on Linux. Not yet run on a Mac for P008 |
-| JavaScript suites | 27 checks passed on P008 |
-| Brave synthetic voice acceptance | Not run for P008 (needs a Mac with Brave); 18/18 on P007 and P008 does not touch the page or the voice protocol |
+| Python suite | 186 tests on Linux: 184 passed, 1 skipped; the one failure is the macOS-only launcher `--check`, which cannot run on Linux. Not yet run on a Mac for P008/P009 |
+| JavaScript suites | 27 checks passed on P009 |
+| Brave synthetic voice acceptance | Not run for P008/P009 (needs a Mac with Brave); 18/18 on P007. Neither patch changes the page or the voice protocol |
+| Conversation tone | Tone vials and spoken day modes reach the model (P009); first real-user feedback was "liked the listening, wants a little more back". Reply quality with the new default not yet re-tested with her |
 | Model download | Real Kokoro snapshot (0.36 GB, 56 files) downloaded from Hugging Face through redirects and verified file by file; `verify` re-hash passed |
 | Real launcher orchestration | Gemma and Hearth started on loopback, health passed, Brave opened, and owned processes stopped cleanly |
 | Real microphone permission | Build Mac prompted after reload and accepted the selected input device; conversational quality is not yet a recorded test |

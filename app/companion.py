@@ -46,6 +46,12 @@ class LlmSettings:
     system_prompt: str
 
 
+def with_style(settings: LlmSettings, style) -> LlmSettings:
+    """The base prompt (safety rules, memory rules) plus the current conversation style."""
+    return LlmSettings(settings.base_url, settings.model,
+                       settings.system_prompt + "\n\nHow to talk right now: " + style.instructions)
+
+
 def load_llm_settings(root: Path = ROOT, data_dir: Optional[Path] = None) -> LlmSettings:
     """The model name sent to the loopback server.
 
@@ -63,13 +69,13 @@ def load_llm_settings(root: Path = ROOT, data_dir: Optional[Path] = None) -> Llm
     return LlmSettings(cfg["endpoint"], cfg["profiles"][profile]["mlx"], prompt)
 
 
-def clean_model_text(raw: str) -> str:
+def clean_model_text(raw: str, max_sentences: int = MAX_SENTENCES) -> str:
     sentences: List[str] = []
     for sentence in _SENTENCE.split(" ".join(raw.split())):
         if not sentence or ROLE_CLAIM.search(sentence):
             continue
         sentences.append(filter_output(sentence))
-        if len(sentences) == MAX_SENTENCES:
+        if len(sentences) == max_sentences:
             break
     return " ".join(sentences)
 
@@ -79,6 +85,7 @@ def generate_reply(
     history: Optional[List[dict]] = None,
     settings: Optional[LlmSettings] = None,
     stream: Callable[..., Iterable[str]] = stream_chat,
+    max_sentences: int = MAX_SENTENCES,
 ) -> Reply:
     decision = decide(user_text)
     if decision.risk_level != "ordinary" or settings is None:
@@ -91,7 +98,7 @@ def generate_reply(
         messages.append({"role": "assistant", "content": turn["assistant"]})
     messages.append({"role": "user", "content": user_text})
     try:
-        text = clean_model_text("".join(stream(settings.base_url, settings.model, messages)))
+        text = clean_model_text("".join(stream(settings.base_url, settings.model, messages)), max_sentences)
     except Exception as error:
         log.warning("hearth: model call failed: %s: %s", type(error).__name__, str(error)[:200])
         text = ""
@@ -105,11 +112,12 @@ def stream_reply(
     history: Optional[List[dict]] = None,
     settings: Optional[LlmSettings] = None,
     stream: Callable[..., Iterable[str]] = stream_chat,
+    max_sentences: int = MAX_SENTENCES,
 ) -> Iterator[Tuple[str, str]]:
     """Yield (source, sentence) as each sentence completes, already filtered.
 
     Same rules as generate_reply: crisis text never reaches the model; role claims are
-    dropped; at most three sentences; a deterministic fallback if the model fails.
+    dropped; at most max_sentences (set by the conversation style); a deterministic fallback.
     The first sentence can be spoken while the rest is still being written.
     """
     decision = decide(user_text)
@@ -142,13 +150,13 @@ def stream_reply(
                     continue
                 yield "model", filter_output(" ".join(sentence.split()))
                 emitted += 1
-                if emitted == MAX_SENTENCES:
+                if emitted == max_sentences:
                     return
         for sentence in flush(True):
             if sentence and not ROLE_CLAIM.search(sentence):
                 yield "model", filter_output(" ".join(sentence.split()))
                 emitted += 1
-                if emitted == MAX_SENTENCES:
+                if emitted == max_sentences:
                     return
     except Exception as error:
         # Never log what was said; only why the model call failed.

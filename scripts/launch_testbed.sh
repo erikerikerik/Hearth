@@ -26,6 +26,8 @@ require_local_install() {
   [ "$(uname -s)" = "Darwin" ] || fail "this launcher is for macOS"
   [ "$(uname -m)" = "arm64" ] || fail "Hearth's MLX test bed requires an Apple-silicon Mac"
   [ -x "$PYTHON" ] || fail "missing .venv-ai. Run: bash scripts/install_models.sh"
+  "$PYTHON" -c "import fastapi, uvicorn, argon2" >/dev/null 2>&1 \
+    || fail "Hearth's server packages are missing from .venv-ai. Run: .venv-ai/bin/python -m pip install -r requirements.txt"
   [ -x "$BRAVE" ] || fail "Brave is not installed in /Applications"
   [ -x "$ROOT/scripts/run_llm.sh" ] || fail "scripts/run_llm.sh is missing or not executable"
   [ -f "$ROOT/run_dev.py" ] || fail "run_dev.py is missing"

@@ -19,5 +19,6 @@ The production LAN service still requires reviewed local HTTPS, name-constrained
 
 - The installed service runs as a per-user LaunchAgent on 127.0.0.1 with `HEARTH_COOKIE_SECURE=0` (loopback http; cookies stay HttpOnly and SameSite=Strict). Do not expose this configuration on a network.
 - The password hash lives in `auth.json` (0600) in the data directory; the plaintext is typed into a macOS dialog and piped to the hashing tool on stdin.
-- Model download is the only network use, runs as a separate process after explicit consent, and verifies SHA-256.
+- Model download is the only network use. It runs as a separate process (`tools/model_manager.py`, never imported by the companion) after explicit consent, contacts only `huggingface.co` and its download CDN over https (redirects to plain http are refused), fetches each model at one pinned commit and checks every file against the size and hash in `models/manifest.json` before the folder is used. The companion and the language-model service then run with `HF_HUB_OFFLINE=1`. Hugging Face can see the download requests (IP address, which public models, when); nothing about her or her conversations is sent.
+- The language model runs as a second per-user LaunchAgent (`com.hearth.llm`) on 127.0.0.1:8081 only.
 - Look bundles are verified (checksum when downloaded), cannot contain symlinks or escaping paths, and cannot access the database.

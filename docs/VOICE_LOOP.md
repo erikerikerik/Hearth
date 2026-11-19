@@ -63,9 +63,12 @@ JavaScript checks. This does not validate real speech models or real-room behavi
 7. A first-time Brave tab may keep the audio context suspended until she clicks once; the indicator then says
    "Tap anywhere to start listening".
 
-## Not yet part of the installer
+## In the installed app (P008)
 
-The DMG still packages the web app only. For this loop to work from `/Applications/Hearth.app` the installer must also:
-bundle `mlx`, `mlx-lm`, `mlx-audio`, `mlx-whisper` and their data (misaki/spaCy) into the app Python; download the
-Hugging Face model snapshots at pinned revisions (the current downloader handles single files); and supervise
-`mlx_lm.server` on 127.0.0.1:8081. Until then, voice runs from the developer tree (`scripts/install_models.sh`, `run_llm.sh`).
+`/Applications/Hearth.app` now carries the whole loop. `installer/build.sh` bundles `mlx`, `mlx-lm`, `mlx-audio`,
+misaki, spaCy's `en_core_web_sm` and the eSpeak NG library from the hash-locked `installer/requirements-app.lock` (no
+PyTorch). On first launch, after consent, `tools/model_manager.py` downloads the pinned Whisper, Kokoro and Gemma
+snapshots into the data directory and verifies every file. The companion loads them by local path (`app/local_models.py`)
+and the `com.hearth.llm` LaunchAgent supervises `mlx_lm.server` on 127.0.0.1:8081 with the same path. Both services
+run with `HF_HUB_OFFLINE=1`. `mlx-whisper` remains a developer benchmark dependency only; the app hears through
+`mlx-audio`'s Whisper loader. Not yet run on a Mac; see `installer/INSTALL.md` for the smoke test.

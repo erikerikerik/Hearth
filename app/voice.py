@@ -25,7 +25,8 @@ from typing import Callable, Iterator, List, Optional, Protocol, Tuple
 
 from dataclasses import replace as dc_replace
 
-from .companion import LlmSettings, stream_reply
+from .companion import LlmSettings, stream_reply, with_style
+from .conversation_style import DayMode, detect_mode_request, style_for
 from .remember import FORGOT_REPLY, NOTHING_TO_FORGET_REPLY, MemoryKeeper, is_forget_request
 from .safety import decide
 from .llm import stream_chat
@@ -139,6 +140,29 @@ class VoiceEngine(Protocol):
     def synthesize(self, text: str, voice_id: Optional[str]) -> bytes: ...  # int16 PCM at sample_rate
 
 
+def use_bundled_espeak() -> bool:
+    """Point phonemizer at the eSpeak NG library shipped inside the app (espeakng-loader).
+
+    Kokoro's English front-end (misaki) uses eSpeak only for words missing from its dictionary,
+    such as names. Without a library it silently skips those words. An explicit environment
+    setting wins. Returns True when the bundled copy is in use.
+    """
+    import importlib
+    import os
+    if os.environ.get("PHONEMIZER_ESPEAK_LIBRARY"):
+        return False
+    try:
+        loader = importlib.import_module("espeakng_loader")
+        library, data = loader.get_library_path(), loader.get_data_path()
+    except Exception:
+        return False
+    if not os.path.isfile(library):
+        return False
+    os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = library
+    os.environ.setdefault("PHONEMIZER_ESPEAK_DATA_PATH", data)
+    return True
+
+
 class MlxVoiceEngine:
     """Local speech models through MLX (Apple silicon). Loaded on first use, then kept warm.
 
@@ -146,17 +170,24 @@ class MlxVoiceEngine:
     server routes them through a single-worker executor.
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: Optional[dict] = None, data_dir=None):
         import json
         from pathlib import Path
 
+        from .local_models import installed_models
+
         root = Path(__file__).resolve().parent.parent
-        self.config = config or json.loads((root / "config" / "models.json").read_text())
+        self.config = dict(config or json.loads((root / "config" / "models.json").read_text()))
+        # Installed app: load the verified local snapshots, never a hub name.
+        for role, local in installed_models(data_dir).items():
+            if role in ("stt", "tts"):
+                self.config[role] = dict(self.config.get(role, {}), mlx=local["path"])
         self.sample_rate = 24000
         self._tts = None
         self._stt = None
 
     def load(self) -> None:
+        use_bundled_espeak()
         if self._tts is None:
             from mlx_audio.tts.utils import load as load_tts
             self._tts = load_tts(self.config["tts"]["mlx"])
@@ -209,6 +240,8 @@ class VoiceSession:
     shelf_unlocked: Callable[[], bool] = lambda: False
     session_tag: str = "s0"
     memory_delay: float = 4.0            # quiet seconds before notes are written, so replies are never slowed
+    tone: Callable[[], Optional[dict]] = lambda: None     # the workshop tone vials, read each turn
+    day_mode: Optional[DayMode] = None   # "just listen today" / "let's chat", shared across connections
 
     def __post_init__(self):
         self.segmenter = Segmenter(self.vad)
@@ -373,10 +406,21 @@ class VoiceSession:
                     await self.event("memory.removed", id=str(removed))
                 sentences = iter([("memory", FORGOT_REPLY if removed is not None else NOTHING_TO_FORGET_REPLY)])
             else:
+                if self.day_mode is not None and decide(text).risk_level == "ordinary":
+                    asked = detect_mode_request(text)
+                    if asked is not None:
+                        self.day_mode.set(None if asked == "default" else asked)
+                try:
+                    tone = self.tone()
+                except Exception:
+                    tone = None
+                style = style_for(tone, self.day_mode.get() if self.day_mode is not None else None)
                 settings = self.llm_settings
-                if settings is not None and self.memory is not None:
-                    settings = dc_replace(settings, system_prompt=settings.system_prompt + self.memory.prompt_block())
-                sentences = stream_reply(text, list(self.history), settings, self.llm_call)
+                if settings is not None:
+                    settings = with_style(settings, style)
+                    if self.memory is not None:
+                        settings = dc_replace(settings, system_prompt=settings.system_prompt + self.memory.prompt_block())
+                sentences = stream_reply(text, list(self.history), settings, self.llm_call, style.max_sentences)
             delivered: List[str] = []
             self._playback_done = asyncio.Event()
             audio_seconds = 0.0

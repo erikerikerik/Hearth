@@ -7,8 +7,15 @@
 #   NOTARY_PROFILE=my-notary-profile ./build.sh     signed + notarized + stapled (app and disk image)
 #   (.pkg additionally needs INSTALLER_SIGN_ID="Developer ID Installer: NAME (TEAMID)")
 #
-# Optional: PYTHON_TARBALL=/path/to/cpython-3.12.x-aarch64-apple-darwin-install_only.tar.gz  (skip the download)
+# Optional: PYTHON_TARBALL=/path/to/the pinned cpython tarball below  (skip the download; still checksum-verified)
+#
+# Everything bundled is pinned: the Python runtime by URL + sha256 (below), every Python package by
+# version + sha256 (installer/requirements-app.lock, regenerated with installer/lock.sh). Models are
+# NOT bundled; Hearth.app downloads them on first launch, with consent, from models/manifest.json.
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
+PBS_URL="https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.12.13%2B20260718-aarch64-apple-darwin-install_only.tar.gz"
+PBS_SHA256="62aeee6161d57303a71a138b75fd5cc6fb8c89c4b1d9c7f0a052d89fa0b6652b"
 [ "$(uname -s)" = Darwin ] && [ "$(uname -m)" = arm64 ] || { echo "Run this on an Apple-silicon Mac."; exit 1; }
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -27,45 +34,56 @@ sed "s|@VERSION@|$VERSION|g" "$HERE/Info.plist" >"$APP/Contents/Info.plist"
 cp "$HERE/Hearth-launcher.sh" "$APP/Contents/MacOS/Hearth" && chmod 755 "$APP/Contents/MacOS/Hearth"
 cp "$HERE/assets/AppIcon.icns" "$RES/AppIcon.icns"
 printf '%s+%s' "$VERSION" "$(date +%Y%m%d%H%M%S)" >"$RES/VERSION"   # lets the launcher restart the service after an upgrade
-cp -R "$SRC/app" "$SRC/dist" "$SRC/tools" "$SRC/models" "$RES/"
+cp -R "$SRC/app" "$SRC/config" "$SRC/dist" "$SRC/tools" "$SRC/models" "$RES/"
 cp "$SRC/run_server.py" "$SRC/requirements.txt" "$RES/"
-mkdir -p "$RES/launchd" && cp "$HERE/launchd/com.hearth.local.plist.template" "$RES/launchd/"
+mkdir -p "$RES/launchd" && cp "$HERE/launchd/com.hearth.local.plist.template" "$HERE/launchd/com.hearth.llm.plist.template" "$RES/launchd/"
+# Refuse to ship a manifest that would download anything unpinned.
+/usr/bin/python3 "$SRC/scripts/pin_models.py" --check
 cp "$HERE/uninstall.sh" "$RES/uninstall.sh" && chmod 755 "$RES/uninstall.sh"
 
-echo "==> Bundled Python runtime"
-TARBALL="${PYTHON_TARBALL:-}"
-if [ -z "$TARBALL" ]; then
-  META="$CACHE/pbs-release.json"
-  /usr/bin/curl -fsSL https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest -o "$META"
-  URL="$(/usr/bin/python3 - "$META" <<'PY'
-import json,re,sys
-assets=json.load(open(sys.argv[1]))["assets"]
-pat=re.compile(r"^cpython-3\.12\.\d+\+\d+-aarch64-apple-darwin-install_only\.tar\.gz$")
-print(next(a["browser_download_url"] for a in assets if pat.match(a["name"])))
-PY
-)"
-  TARBALL="$CACHE/$(basename "$URL")"
-  [ -f "$TARBALL" ] || /usr/bin/curl -fsSL "$URL" -o "$TARBALL"
-  # Verify against the release's published checksums.
-  SUMS_URL="$(/usr/bin/python3 - "$META" <<'PY'
-import json,sys
-print(next(a["browser_download_url"] for a in json.load(open(sys.argv[1]))["assets"] if a["name"]=="SHA256SUMS"))
-PY
-)"
-  /usr/bin/curl -fsSL "$SUMS_URL" -o "$CACHE/SHA256SUMS"
-  WANT="$(grep " $(basename "$TARBALL")\$" "$CACHE/SHA256SUMS" | awk '{print $1}')"
-  GOT="$(/usr/bin/shasum -a 256 "$TARBALL" | awk '{print $1}')"
-  [ -n "$WANT" ] && [ "$WANT" = "$GOT" ] || { echo "Python runtime checksum mismatch"; exit 1; }
-fi
+echo "==> Bundled Python runtime (pinned)"
+TARBALL="${PYTHON_TARBALL:-$CACHE/$(basename "$PBS_URL" | sed 's/%2B/+/')}"
+[ -f "$TARBALL" ] || /usr/bin/curl -fsSL "$PBS_URL" -o "$TARBALL"
+GOT="$(/usr/bin/shasum -a 256 "$TARBALL" | awk '{print $1}')"
+[ "$GOT" = "$PBS_SHA256" ] || { echo "Python runtime checksum mismatch: $GOT"; rm -f "$TARBALL"; exit 1; }
 mkdir -p "$BUILD/py-extract" && rm -rf "$BUILD/py-extract"/* && tar -xzf "$TARBALL" -C "$BUILD/py-extract"
 mv "$BUILD/py-extract/python" "$RES/python"
-"$RES/python/bin/python3" -m pip install --no-cache-dir --disable-pip-version-check -r "$SRC/requirements.txt"
 
-echo "==> Self-check inside the bundle"
-HEARTH_DATA_DIR="$BUILD/selfcheck-data" HEARTH_DEV_PASSWORD="selfcheck-only" \
-  "$RES/python/bin/python3" -c "import sys; sys.path.insert(0,'$RES'); from app.main import create_app; create_app(); print('ok')"
-rm -rf "$BUILD/selfcheck-data"
+echo "==> Python packages from installer/requirements-app.lock (hash-checked, wheels only)"
+"$RES/python/bin/python3" -m pip install --no-cache-dir --disable-pip-version-check \
+  --require-hashes --only-binary :all: --no-deps -r "$HERE/requirements-app.lock"
+"$RES/python/bin/python3" -m pip check
+
+selfcheck() {  # label
+  echo "==> Self-check inside the bundle ($1)"
+  rm -rf "$BUILD/selfcheck-data"
+  HEARTH_DATA_DIR="$BUILD/selfcheck-data" HEARTH_DEV_PASSWORD="selfcheck-only" \
+  HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HOME="$BUILD/selfcheck-data/hf-home" \
+    "$RES/python/bin/python3" - "$RES" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+import mlx.core as mx
+assert mx.metal.is_available(), "Metal GPU not available to the bundled MLX"
+mx.eval(mx.ones(4) * 2)                          # runs a Metal kernel under this runtime/signature
+import mlx_lm.server, mlx_audio.tts.utils, mlx_audio.stt.utils   # noqa: F401
+import spacy
+spacy.load("en_core_web_sm")                     # bundled; must not try to download
+from misaki import en                            # noqa: F401
+from app.voice import mlx_available, use_bundled_espeak
+assert mlx_available(), "voice stack not importable"
+assert use_bundled_espeak(), "bundled eSpeak NG library not found"
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
+EspeakWrapper()                                  # loads the bundled dylib
+from app.main import create_app
+create_app()
+print("ok")
+PY
+  rm -rf "$BUILD/selfcheck-data"
+}
+selfcheck "unsigned"
 find "$APP" -name "__pycache__" -type d -prune -exec rm -rf {} +
+# Precompile once, before signing: the signed bundle is never written to at run time.
+"$RES/python/bin/python3" -m compileall -q -j 0 --invalidation-mode unchecked-hash "$RES" >/dev/null
 
 if [ -n "${APP_SIGN_ID:-}" ]; then
   echo "==> Signing (hardened runtime)"
@@ -76,10 +94,8 @@ if [ -n "${APP_SIGN_ID:-}" ]; then
   done
   /usr/bin/codesign --force --options runtime --timestamp --entitlements "$ENT" -s "$APP_SIGN_ID" "$APP"
   /usr/bin/codesign --verify --deep --strict --verbose=2 "$APP"
-  echo "==> Re-running the bundled Python under the hardened runtime"
-  HEARTH_DATA_DIR="$BUILD/selfcheck-data" HEARTH_DEV_PASSWORD="selfcheck-only" \
-    "$RES/python/bin/python3" -c "import sys; sys.path.insert(0,'$RES'); from app.main import create_app; create_app(); print('signed runtime ok')"
-  rm -rf "$BUILD/selfcheck-data"
+  selfcheck "signed, hardened runtime"
+  /usr/bin/codesign --verify --deep --strict "$APP"   # the self-check must not have modified the bundle
 fi
 
 if [ -n "${APP_SIGN_ID:-}" ] && [ -n "${NOTARY_PROFILE:-}" ]; then

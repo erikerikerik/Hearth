@@ -13,4 +13,5 @@ fi
 
 # On an upgrade, restart the service so it runs the new code. User data is never touched here.
 /bin/launchctl kickstart -k "gui/$UID_NUM/com.hearth.local" >/dev/null 2>&1 || true
+/bin/launchctl kickstart -k "gui/$UID_NUM/com.hearth.llm" >/dev/null 2>&1 || true
 exit 0

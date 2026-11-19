@@ -15,6 +15,14 @@
     <key>HEARTH_PORT</key><string>@PORT@</string>
     <!-- Loopback http only: Secure cookies are not needed on 127.0.0.1 and some browsers reject them there. -->
     <key>HEARTH_COOKIE_SECURE</key><string>0</string>
+    <!-- Local language model (com.hearth.llm on loopback) and local speech; replies fall back if the model is not up yet. -->
+    <key>HEARTH_LLM_ENABLED</key><string>1</string>
+    <key>HEARTH_VOICE_ENABLED</key><string>1</string>
+    <!-- Models are read from verified folders in the data directory; never fetched by the companion. -->
+    <key>HF_HUB_OFFLINE</key><string>1</string>
+    <key>TRANSFORMERS_OFFLINE</key><string>1</string>
+    <key>HF_HUB_DISABLE_TELEMETRY</key><string>1</string>
+    <key>HF_HOME</key><string>@DATA@/hf-home</string>
     <key>PYTHONDONTWRITEBYTECODE</key><string>1</string>
   </dict>
   <key>RunAtLoad</key><true/>

@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3.0-rc1+p009 — a little more back, and she chooses the day
+
+- The workshop tone vials now steer the companion; at the default tone it says a bit more (two or three sentences, a gentle follow-up about every other reply).
+- Say "just listen today", "let's chat" or "back to normal" to change the style until the end of the day; held in memory only.
+- Safety handling and memory are unchanged; crisis words never reach the model and never change the mode.
+- 184 of 186 Python tests pass on Linux (the failure is the macOS-only launcher check, one is skipped) and 27 JavaScript checks pass. Not yet measured on the M3.
+
+## 1.3.0-rc1+p008 — installer carries the voice loop
+
+- `Hearth.app` now bundles the local voice and language stack (MLX, mlx-lm, mlx-audio, misaki, spaCy English model, eSpeak NG) from a hash-locked, PyTorch-free package list and a sha256-pinned Python.
+- First launch asks once, then downloads pinned Whisper, Kokoro and Gemma snapshots (Gemma size chosen by RAM; about 11 GB on 24–36 GB Macs), verifying every file before use. Downloads resume and run one at a time.
+- A second LaunchAgent supervises the language model on 127.0.0.1:8081. The companion LaunchAgent enables the model and runs fully offline.
+- Fixed: the installed app did not ship `config/`, and had the language model switched off.
+- Build self-check runs MLX on the GPU and loads the speech stack before and after signing; bytecode is precompiled so the signed bundle is never modified.
+- New `tools/smoke_installed.py` for target-Mac evidence; new `scripts/pin_models.py` and `installer/lock.sh` for re-pinning.
+- Minimum macOS is 14.0.
+- Verification on Linux: 167 of 168 Python tests pass (the failure is the macOS-only launcher check) and 27 JavaScript checks pass; a real pinned Kokoro snapshot downloaded and verified. Not yet built, signed or run on a Mac.
+- `personal_use_ready` remains false.
+
 ## 1.3.0-rc1+p007 — public screenshots
 
 - Added the current orb and workshop screenshots to the public README.
